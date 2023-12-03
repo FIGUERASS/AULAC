@@ -1,1 +1,223 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <time.h>
 
+struct Member {
+    char name[100];
+    char functions[100];
+};
+
+struct Task {
+    char name[100];
+    char manager[100];
+    int progress;
+};
+
+int main() {
+    struct tm *data_hora_atual;
+    time_t segundos;
+    time(&segundos);
+    data_hora_atual = localtime(&segundos);
+    int op;
+    char nome[100];
+    struct Member members[100];
+    int numMembers = 0;
+    int showMenu = 1;
+    int backToMenu = 1;
+    struct Task tasks[100];
+    int numTasks = 0;
+
+    do {
+        if (showMenu) {
+            printf("###########################################################\n");
+            printf("#              GERENCIADOR DE PROJETOS                    #\n");
+            printf("###########################################################\n");
+            printf("#  Digite algo:                                           #\n");
+            printf("#  9 - Sair                                               #\n");
+            printf("#  1 - Editar nome do projeto                             #\n");
+            printf("#  2 - Adicionar integrante                               #\n");
+            printf("#  3 - Remover um integrante                              #\n");
+            printf("#  4 - Visualizar integrantes                             #\n");
+            printf("#  5 - Adicionar tarefa                                   #\n");
+            printf("#  6 - Remover tarefa                                     #\n");
+            printf("#  7 - Editar tarefa                                      #\n");
+            printf("#  8 - Visualizar andamento do projeto                    #\n");
+            printf("#                            Joao Figuereido e Luiz Neto  #\n");
+            printf("###########################################################\n");
+            printf("Brasilia, %d/%d/%d \n", data_hora_atual->tm_mday, data_hora_atual->tm_mon + 1, data_hora_atual->tm_year + 1900);
+        }
+
+        scanf("%d", &op);
+
+        switch (op) {
+            case 9:
+                showMenu = 0;
+                break;
+            case 1:
+                // Edit project name
+                printf("Digite o novo nome do projeto:\n");
+                scanf(" %[^\n]", nome);
+                printf("Nome do projeto atualizado: %s\n", nome);
+                break;
+            case 2:
+                // Add member
+                printf("Quantos integrantes deseja adicionar?\n");
+                int additionalMembers;
+                scanf("%d", &additionalMembers);
+
+                for (int i = numMembers; i < numMembers + additionalMembers; i++) {
+                    printf("Digite o nome do integrante %d:\n", i + 1);
+                    scanf(" %[^\n]", members[i].name);
+
+                    printf("Digite as funções do integrante %d:\n", i + 1);
+                    scanf(" %[^\n]", members[i].functions);
+                }
+                numMembers += additionalMembers;
+                printf("Integrantes adicionados.\n");
+                break;
+            case 3:
+                // Remove member
+                if (numMembers > 0) {
+                    printf("Digite o número do integrante a ser removido (1 a %d): ", numMembers);
+                    int memberToRemove;
+                    scanf("%d", &memberToRemove);
+
+                    if (memberToRemove > 0 && memberToRemove <= numMembers) {
+                        for (int i = memberToRemove - 1; i < numMembers - 1; i++) {
+                            strcpy(members[i].name, members[i + 1].name);
+                            strcpy(members[i].functions, members[i + 1].functions);
+                        }
+                        numMembers--;
+                        printf("Integrante removido com sucesso.\n");
+                    } else {
+                        printf("Número de integrante inválido.\n");
+                    }
+                } else {
+                    printf("Não há integrantes para remover.\n");
+                }
+                break;
+            case 4:
+                // View members
+                printf("Visualizando integrantes:\n");
+                for (int i = 0; i < numMembers; i++) {
+                    printf("Integrante %d\n", i + 1);
+                    printf("Nome: %s\n", members[i].name);
+                    printf("Funções: %s\n", members[i].functions);
+                }
+                printf("Digite 0 para voltar ao menu principal: ");
+                scanf("%d", &backToMenu);
+                if (backToMenu == 0) {
+                    showMenu = 1;
+                } else {
+                    showMenu = 0;
+                }
+                break;
+            case 5:
+                // Add task
+                printf("Digite o nome da tarefa:\n");
+                scanf(" %[^\n]", tasks[numTasks].name);
+
+                printf("Digite o nome do Responsavel da tarefa:\n");
+                scanf(" %[^\n]", tasks[numTasks].manager);
+
+                int managerFound = 0;
+                for (int i = 0; i < numMembers; i++) {
+                    if (strcmp(members[i].name, tasks[numTasks].manager) == 0) {
+                        managerFound = 1;
+                        break;
+                    }
+                }
+
+                if (managerFound) {
+                    printf("Tarefa adicionada com sucesso.\n");
+                    numTasks++;
+                } else {
+                    printf("O gerente informado não é um membro existente.\n");
+                }
+                break;
+            case 6:
+                // Remove task
+                if (numTasks > 0) {
+                    printf("Digite o número da tarefa a ser removida (1 a %d): ", numTasks);
+                    int taskToRemove;
+                    scanf("%d", &taskToRemove);
+
+                    if (taskToRemove > 0 && taskToRemove <= numTasks) {
+                        for (int i = taskToRemove - 1; i < numTasks - 1; i++) {
+                            strcpy(tasks[i].name, tasks[i + 1].name);
+                            strcpy(tasks[i].manager, tasks[i + 1].manager);
+                            tasks[i].progress = tasks[i + 1].progress;
+                        }
+                        numTasks--;
+                        printf("Tarefa removida com sucesso.\n");
+                    } else {
+                        printf("Número de tarefa inválido.\n");
+                    }
+                } else {
+                    printf("Não há tarefas para remover.\n");
+                }
+                break;
+            case 7:
+            // Edit task
+            if (numTasks > 0) {
+                printf("Digite o número da tarefa a ser editada (1 a %d): ", numTasks);
+                int taskToEdit;
+                scanf("%d", &taskToEdit);
+
+                if (taskToEdit > 0 && taskToEdit <= numTasks) {
+                printf("Digite o novo nome da tarefa:\n");
+                scanf(" %[^\n]", tasks[taskToEdit - 1].name);
+
+            // Check if the entered manager name exists in the list of members
+            int managerFound = 0;
+            do {
+                printf("Digite o novo nome do Responsavel da tarefa:\n");
+                scanf(" %[^\n]", tasks[taskToEdit - 1].manager);
+
+                for (int i = 0; i < numMembers; i++) {
+                    if (strcmp(members[i].name, tasks[taskToEdit - 1].manager) == 0) {
+                        managerFound = 1;
+                        break;
+                    }
+                }
+
+                if (!managerFound) {
+                    printf("O gerente informado não é um membro existente. Tente novamente.\n");
+                }
+            } while (!managerFound);
+
+            printf("Digite o progresso atual da tarefa (0 a 100):\n");
+            scanf("%d", &tasks[taskToEdit - 1].progress);
+
+            printf("Tarefa editada com sucesso.\n");
+            } else {
+            printf("Número de tarefa inválido.\n");
+            }
+            } else {
+            printf("Não há tarefas para editar.\n");
+            }
+            break;
+            case 8:
+                // View progress
+                printf("Visualizando andamento do projeto:\n");
+                for (int i = 0; i < numTasks; i++) {
+                    printf("Tarefa %d\n", i + 1);
+                    printf("Nome: %s\n", tasks[i].name);
+                    printf("Responsavel: %s\n", tasks[i].manager);
+                    printf("Progresso: %d%%\n", tasks[i].progress);
+                }
+                printf("Digite 0 para voltar ao menu principal: ");
+                scanf("%d", &backToMenu);
+                if (backToMenu == 0) {
+                    showMenu = 1;
+                } else {
+                    showMenu = 0;
+                }
+                break;
+            default:
+                printf("Opção inválida. Tente novamente.\n");
+        }
+    } while (op != 9);
+    return 0;
+}
